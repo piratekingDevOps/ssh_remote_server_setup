@@ -1,165 +1,189 @@
-🔐 #SSH Remote Server Setup
+# 🔐 SSH Remote Server Setup
 
-Project URL:
+**Project URL:**  
 https://roadmap.sh/projects/ssh-remote-server-setup
 
-📖 Overview
+---
 
-This project demonstrates how to set up a remote Linux server and configure secure SSH access using multiple SSH key pairs.
+## 📖 Overview
 
-The main objective is simple:
+This project demonstrates how to set up a **remote Linux server** and configure secure **SSH access using multiple SSH key pairs**.
 
-Allow SSH access to the same server using two different SSH keys
+The main objectives:
 
-Verify authentication using each key
+- Allow SSH access to the same server using **two different SSH keys**  
+- Verify authentication using each key  
+- Simplify access using SSH configuration aliases  
+- Optionally improve security with basic protections
 
-Optionally simplify access using SSH configuration
+The server for this project was created as a **Linux EC2 instance on AWS** ☁️.
 
-Improve security with basic protections
+---
 
-The remote server for this project was created as a Linux EC2 instance on AWS using the AWS Console ☁️.
+## 🖥️ Server Information
 
-🖥️ Server Information
+- **Cloud Provider:** AWS  
+- **Service:** EC2  
+- **Operating System:** Linux  
+- **Authentication:** SSH (Key-Based)  
+- **Network Access:** Port 22 (SSH) enabled  
 
-Cloud Provider: AWS
+---
 
-Service: EC2
+## 🔑 SSH Key Generation
 
-Operating System: Linux
+Two SSH key pairs were generated locally:
 
-Authentication: SSH (Key-Based)
-
-Network Access: Port 22 (SSH) enabled
-
-🔑 SSH Key Generation
-
-Two SSH key pairs were generated locally to represent multiple trusted identities.
-
+```bash
 ssh-keygen -t ed25519 -f ~/.ssh/key_1
 ssh-keygen -t ed25519 -f ~/.ssh/key_2
+```
 
+Files created locally:
 
-This created the following files:
-
-key_1 and key_1.pub
-
-key_2 and key_2.pub
+```text
+~/.ssh/key_1
+~/.ssh/key_1.pub
+~/.ssh/key_2
+~/.ssh/key_2.pub
+```
 
 Each key can independently authenticate to the server.
 
-🧩 Adding SSH Keys to the Server
+---
 
-The public keys were added to the remote server as follows:
+## 🧩 Adding SSH Keys to the Server
 
-Connected to the EC2 instance using the default AWS key pair
+Steps to configure the server:
 
-Switched to the correct user:
+1. Connect to the EC2 instance using the **default AWS key pair**  
+2. Switch to the correct user:
 
+```bash
 sudo su - ec2-user
+```
 
+3. Prepare the SSH directory:
 
-Created the SSH directory and set permissions:
-
+```bash
 mkdir -p ~/.ssh
 chmod 700 ~/.ssh
+```
 
+4. Add both public keys to `authorized_keys`:
 
-Added both public keys to the authorized keys file:
-
+```bash
 nano ~/.ssh/authorized_keys
+```
 
-<contents of key_1.pub>
-<contents of key_2.pub>
+Paste the contents of both public keys:
 
+```text
+# Contents of key_1.pub
+ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAA... user@local
 
-Applied strict permissions:
+# Contents of key_2.pub
+ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAA... user@local
+```
 
+5. Set proper permissions:
+
+```bash
 chmod 600 ~/.ssh/authorized_keys
 chown -R ec2-user:ec2-user ~/.ssh
+```
 
+At this point, the server recognizes both SSH identities 🔐.
 
-At this point, the server recognized both SSH identities 🔐.
+---
 
-🚀 Verifying SSH Access
+## 🚀 Verifying SSH Access
 
-SSH access was verified using both keys:
+SSH access verified with both keys:
 
+```bash
 ssh -i ~/.ssh/key_1 ec2-user@server-ip
 ssh -i ~/.ssh/key_2 ec2-user@server-ip
-
+```
 
 Both connections authenticated successfully.
 
-🧭 SSH Config Alias (Optional)
+---
 
-To simplify SSH access, an alias was configured.
+## 🧭 SSH Config Alias (Optional)
 
-Edited the local SSH configuration file:
+To simplify SSH commands:
 
+1. Edit local SSH config:
+
+```bash
 nano ~/.ssh/config
+```
 
+2. Add the following entry:
 
-Added the following entry:
-
+```text
 Host aws-server
     HostName server-ip
     User ec2-user
     IdentityFile ~/.ssh/key_1
+```
 
+3. Connect easily:
 
-Now the server can be accessed using:
-
+```bash
 ssh aws-server
+```
 
+No more typing IPs or key paths every time ✨.
 
-This removes the need to specify the key and IP every time ✨.
+---
 
-🛡️ Stretch Goal: Fail2Ban
+## 🛡️ Stretch Goal: Fail2Ban
 
-As an additional security measure, Fail2Ban was installed to help prevent brute-force SSH attacks.
+Install Fail2Ban for brute-force protection:
 
+```bash
 sudo apt update
 sudo apt install fail2ban -y
+```
 
+Enable and start the service:
 
-The service was enabled and started:
-
+```bash
 sudo systemctl enable fail2ban
 sudo systemctl start fail2ban
+```
 
+Fail2Ban monitors login attempts and blocks suspicious activity 👀.
 
-Fail2Ban now monitors login attempts and blocks suspicious behavior.
+---
 
-🔐 Security Notes
+## 🔐 Security Notes
 
-Private SSH keys were not pushed to the repository
+- Private SSH keys were **never committed**  
+- Only public keys were added to the server  
+- SSH access is strictly key-based  
 
-Only public keys were added to the server
+---
 
-SSH authentication is fully key-based
+## ✅ Outcome
 
-✅ Outcome
+- Remote Linux server successfully created on AWS  
+- SSH access configured using **two independent key pairs**  
+- Verified login using both keys  
+- SSH alias configured via `~/.ssh/config`  
+- Basic brute-force protection enabled with Fail2Ban  
 
-Remote Linux server successfully created on AWS
+---
 
-SSH access configured using two SSH key pairs
-
-Verified access using both keys
-
-SSH alias configured using ~/.ssh/config
-
-Basic brute-force protection enabled with Fail2Ban
-
-📌 Conclusion
+## 📌 Conclusion
 
 This project provides hands-on experience with:
 
-Remote Linux server setup
+- Remote Linux server setup  
+- SSH key-based authentication  
+- Managing multiple SSH identities  
+- Basic server security practices  
 
-SSH key-based authentication
-
-Managing multiple SSH identities
-
-Basic server security practices
-
-It lays a strong foundation for future projects involving server configuration and hardening 🚀.
+It establishes a solid foundation for future server configuration and hardening projects 🚀.
